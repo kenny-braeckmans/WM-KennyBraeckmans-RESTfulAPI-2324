@@ -1,0 +1,9 @@
+RewriteEngine On
+RewriteBase /
+
+# If the request is for a real file or directory, stop here
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Redirect all other requests to api.php
+RewriteRule ^api/.*$ api.php [L,QSA]
