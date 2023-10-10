@@ -1,0 +1,17 @@
+@import url("https://fonts.googleapis.com/css2?family=Fira+Code");
+@import url("https://fonts.googleapis.com/css2?family=Material+Icons+Outlined");
+
+:root {
+    color-scheme: dark;
+}
+
+body {
+    background-color: #272822;
+    font-family: "Fira Code", monospace;
+    color: #F8F8F2;
+}
+
+table {
+    border-style: solid;
+    border-width: 1px;
+}
