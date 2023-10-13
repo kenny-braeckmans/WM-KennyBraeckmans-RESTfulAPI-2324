@@ -1,5 +1,9 @@
 # 1. Exercise RESTful API
 
+## Demo
+
+[https://bennykraeckmans.be/]
+
 ## Notes
 
 - [Mark Roland: How to Build a RESTful API Web Service with PHP](https://web.archive.org/web/20220209214153/https://markroland.com/portfolio/restful-php-api)
