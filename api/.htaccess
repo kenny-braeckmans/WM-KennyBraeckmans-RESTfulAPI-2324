@@ -6,4 +6,4 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 
 # Redirect all other requests to api.php
-RewriteRule ^api/.*$ api.php [L,QSA]
+RewriteRule . api.php [L,QSA]

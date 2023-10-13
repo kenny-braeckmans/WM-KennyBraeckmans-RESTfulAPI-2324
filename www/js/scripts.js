@@ -5,12 +5,10 @@
  * @author Kenny Braeckmans <kenny.braeckmans@student.odisee.be>
  */
 
-console.log('😺');
-
-const baseUrl = 'https://bennykraeckmans.be';
+const baseUrl = 'https://api.bennykraeckmans.be';
 const endpoints = {
-    projects:  '/api/v1/projects',
-    employees: '/api/v1/employees'
+    projects:  '/v1/projects',
+    employees: '/v1/employees'
 };
 
 function buildUrl(baseUrl, endpoint, params = {}) {
@@ -45,6 +43,7 @@ async function fetchProjects() {
 
 function addProjectsTable(json, element) {
     console.log('[+] addProjectsTable');
+    
     const table = document.createElement('table');
     const thead = document.createElement('thead');
     const tbody = document.createElement('tbody');
@@ -78,6 +77,8 @@ function addProjectsTable(json, element) {
 }
 
 window.addEventListener('load', async () => {
+    console.log('😺');
+
     try {
         const projects = await fetchProjects();
         addProjectsTable(projects, document.querySelector('#container1'));
