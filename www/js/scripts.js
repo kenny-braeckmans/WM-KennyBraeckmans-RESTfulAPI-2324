@@ -1,9 +1,11 @@
 /**
  * Exercise: RESTful API
  * 
- * @description This script fetches and displays current weather data for Brussels.
+ * @description CHANGEME
  * @author Kenny Braeckmans <kenny.braeckmans@student.odisee.be>
  */
+
+const debug = true;
 
 const baseUrl = 'https://api.bennykraeckmans.be';
 const endpoints = {
@@ -28,13 +30,13 @@ function buildUrl(baseUrl, endpoint, params = {}) {
 }
 
 async function fetchProjects() {
-    console.log('[+] fetchProjects');
+    if (debug) console.log('[+] fetchProjects');
     const url = buildUrl(baseUrl, endpoints.projects);
 
     try {
         const response = await fetch(url);
         const data = await response.json();
-        // console.log(data);
+        if (debug) console.log(data);
         return data;
     } catch (error) {
         console.error(error);
@@ -42,7 +44,7 @@ async function fetchProjects() {
 }
 
 function addProjectsTable(json, element) {
-    console.log('[+] addProjectsTable');
+    if (debug) console.log('[+] addProjectsTable');
     
     const table = document.createElement('table');
     const thead = document.createElement('thead');
@@ -73,15 +75,16 @@ function addProjectsTable(json, element) {
 
     table.appendChild(thead);
     table.appendChild(tbody);
+    table.classList.add('table', 'table-striped');
     element.appendChild(table);
 }
 
 window.addEventListener('load', async () => {
-    console.log('😺');
+    if (debug) console.log('😺');
 
     try {
         const projects = await fetchProjects();
-        addProjectsTable(projects, document.querySelector('#container1'));
+        addProjectsTable(projects, document.querySelector('#tblProjects'));
     } catch (error) {
         console.error("[!] Error fetching and displaying projects.", error);
     }
