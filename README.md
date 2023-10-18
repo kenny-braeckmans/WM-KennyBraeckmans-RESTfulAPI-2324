@@ -5,6 +5,12 @@
 - 🌐 Web: [www.bennykraeckmans.be](https://www.bennykraeckmans.be/)
 - 📡 API: [api.bennykraeckmans.be](https://api.bennykraeckmans.be/)
 
+## Roadmap/Issues
+
+- [x] Implement SLIM framework for API
+- [x] Implement Bootstrap for webapp
+- [ ] Implement [tuupola/cors-middleware: PSR-7 and PSR-15 CORS middleware](https://github.com/tuupola/cors-middleware)
+
 ## 📚 References
 
 ### Best practices
@@ -18,6 +24,15 @@
 - [Apache & mod_rewrite - Slim Framework](https://www.slimframework.com/docs/v4/start/web-servers.html#apache-configuration)
 - [Routing - Slim Framework](https://www.slimframework.com/docs/v4/objects/routing.html#how-to-create-routes)
 - [Setting up CORS - Slim Framework](https://www.slimframework.com/docs/v4/cookbook/enable-cors.html)
+- [How to Create a RESTful API With Slim 4, PHP and MySQL](https://www.twilio.com/blog/create-restful-api-slim4-php-mysql)
+
+### Ionic
+
+- [CORS Errors: Cross-Origin Resource Sharing - Ionic Documentation](https://ionicframework.com/docs/troubleshooting/cors)
+
+### Bootstrap
+
+- [Tables · Bootstrap v5.3](https://getbootstrap.com/docs/5.3/content/tables/)
 
 ## 🧪 API Testing
 
