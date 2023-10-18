@@ -15,6 +15,9 @@ require __DIR__ . '/vendor/autoload.php';
 // Load the database configuration for the application
 require __DIR__ . '/inc/config.php';
 
+// Load helper functions
+require __DIR__ . '/inc/helpers.php';
+
 // Import necessary classes using the Composer autoloader
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
@@ -41,7 +44,8 @@ $app->add(function (Request $request, RequestHandlerInterface $handler): Respons
 
     $response = $handler->handle($request);
 
-    $response = $response->withHeader('Access-Control-Allow-Origin', 'https://www.bennykraeckmans.be');
+    // $response = $response->withHeader('Access-Control-Allow-Origin', 'https://www.bennykraeckmans.be');
+    $response = $response->withHeader('Access-Control-Allow-Origin', '*');
     $response = $response->withHeader('Access-Control-Allow-Methods', implode(',', $methods));
     $response = $response->withHeader('Access-Control-Allow-Headers', $requestHeaders);
 
@@ -68,8 +72,7 @@ $app->get('/v1/projects', function (Request $request, Response $response) use ($
         }
     }
 
-    $response->getBody()->write(json_encode($projects, JSON_PRETTY_PRINT));
-    return $response->withHeader('Content-Type', 'application/json')->withStatus(201);
+    return jsonResponse($response, $projects, 200);
 });
 
 // Get a single project
@@ -85,11 +88,9 @@ $app->get('/v1/projects/{id}', function (Request $request, Response $response, $
     $project = $result->fetch_assoc();
 
     if ($project) {
-        $response->getBody()->write(json_encode($project, JSON_PRETTY_PRINT));
-        return $response->withHeader('Content-Type', 'application/json')->withStatus(201);
+        return jsonResponse($response, $project, 200);
     } else {
-        $response->getBody()->write(json_encode(['error' => 'Project not found']));
-        return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
+        return jsonResponse($response, ['error' => 'Project not found'], 404);
     }
 });
 
@@ -105,12 +106,14 @@ $app->post('/v1/projects', function (Request $request, Response $response) use (
     $stmt->bind_param("sss", $name, $code, $description);
 
     if ($stmt->execute()) {
-        $response->getBody()->write(json_encode(['message' => 'Project added successfully']));
-        return $response->withHeader('Content-Type', 'application/json')->withStatus(201);
+        return jsonResponse($response, ['message' => 'Project added successfully'], 201);
     } else {
-        $response->getBody()->write(json_encode(['error' => 'Failed to add project']));
-        return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+        return jsonResponse($response, ['error' => 'Failed to add project'], 500);
     }
+});
+
+$app->options('/v1/projects', function (Request $request, Response $response): Response { // Allow preflight requests for /v1/projects
+    return $response;
 });
 
 // Updating a project
@@ -126,11 +129,9 @@ $app->put('/v1/projects/{id}', function (Request $request, Response $response, $
     $stmt->bind_param("sssi", $name, $code, $description, $id);
 
     if ($stmt->execute()) {
-        $response->getBody()->write(json_encode(['message' => 'Project updated successfully']));
-        return $response->withHeader('Content-Type', 'application/json')->withStatus(201);
+        return jsonResponse($response, ['message' => 'Project updated successfully'], 201);
     } else {
-        $response->getBody()->write(json_encode(['error' => 'Failed to update project']));
-        return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+        return jsonResponse($response, ['error' => 'Failed to update project'], 500);
     }
 });
 
@@ -142,11 +143,9 @@ $app->delete('/v1/projects/{id}', function (Request $request, Response $response
     $stmt->bind_param("i", $id);
 
     if ($stmt->execute()) {
-        $response->getBody()->write(json_encode(['message' => 'Project deleted successfully']));
-        return $response->withHeader('Content-Type', 'application/json')->withStatus(201);
+        return jsonResponse($response, ['message' => 'Project deleted successfully'], 201);
     } else {
-        $response->getBody()->write(json_encode(['error' => 'Failed to delete project']));
-        return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+        return jsonResponse($response, ['error' => 'Failed to delete project'], 500);
     }
 });
 
@@ -163,8 +162,7 @@ $app->get('/v1/employees', function (Request $request, Response $response) use (
         }
     }
 
-    $response->getBody()->write(json_encode($employees, JSON_PRETTY_PRINT));
-    return $response->withHeader('Content-Type', 'application/json')->withStatus(201);
+    return jsonResponse($response, $employees, 200);
 });
 
 // Get a single employee
@@ -178,11 +176,9 @@ $app->get('/v1/employees/{id}', function (Request $request, Response $response, 
     $employee = $result->fetch_assoc();
 
     if ($employee) {
-        $response->getBody()->write(json_encode($employee, JSON_PRETTY_PRINT));
-        return $response->withHeader('Content-Type', 'application/json')->withStatus(201);
+        return jsonResponse($response, $employee, 200);
     } else {
-        $response->getBody()->write(json_encode(['error' => 'Employee not found']));
-        return $response->withHeader('Content-Type', 'application/json')->withStatus(404);
+        return jsonResponse($response, ['error' => 'Employee not found'], 404);
     }
 });
 
@@ -198,11 +194,9 @@ $app->post('/v1/employees', function (Request $request, Response $response) use 
     $stmt->bind_param("sss", $firstName, $lastName, $specialization);
 
     if ($stmt->execute()) {
-        $response->getBody()->write(json_encode(['message' => 'Employee added successfully']));
-        return $response->withHeader('Content-Type', 'application/json')->withStatus(201);
+        return jsonResponse($response, ['message' => 'Employee added successfully'], 201);
     } else {
-        $response->getBody()->write(json_encode(['error' => 'Failed to add employee']));
-        return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+        return jsonResponse($response, ['error' => 'Failed to add employee'], 500);
     }
 });
 
@@ -219,11 +213,9 @@ $app->put('/v1/employees/{id}', function (Request $request, Response $response, 
     $stmt->bind_param("sssi", $firstName, $lastName, $specialization, $id);
 
     if ($stmt->execute()) {
-        $response->getBody()->write(json_encode(['message' => 'Employee updated successfully']));
-        return $response->withHeader('Content-Type', 'application/json')->withStatus(201);
+        return jsonResponse($response, ['message' => 'Employee updated successfully'], 201);
     } else {
-        $response->getBody()->write(json_encode(['error' => 'Failed to update employee']));
-        return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+        return jsonResponse($response, ['error' => 'Failed to update employee'], 500);
     }
 });
 
@@ -235,11 +227,9 @@ $app->delete('/v1/employees/{id}', function (Request $request, Response $respons
     $stmt->bind_param("i", $id);
 
     if ($stmt->execute()) {
-        $response->getBody()->write(json_encode(['message' => 'Employee deleted successfully']));
-        return $response->withHeader('Content-Type', 'application/json')->withStatus(201);
+        return jsonResponse($response, ['message' => 'Employee deleted successfully'], 201);
     } else {
-        $response->getBody()->write(json_encode(['error' => 'Failed to delete employee']));
-        return $response->withHeader('Content-Type', 'application/json')->withStatus(500);
+        return jsonResponse($response, ['error' => 'Failed to delete employee'], 500);
     }
 });
 
