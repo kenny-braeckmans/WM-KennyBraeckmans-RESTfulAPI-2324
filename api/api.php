@@ -12,10 +12,8 @@ ini_set('display_errors', 1);
 // Load Composer's autoloader for required libraries
 require __DIR__ . '/vendor/autoload.php';
 
-// Load the database configuration for the application
+// Load the database configuration and helper functions
 require __DIR__ . '/inc/config.php';
-
-// Load helper functions
 require __DIR__ . '/inc/helpers.php';
 
 // Import necessary classes using the Composer autoloader
@@ -45,14 +43,14 @@ $app->add(function (Request $request, RequestHandlerInterface $handler): Respons
     $response = $handler->handle($request);
 
     // $response = $response->withHeader('Access-Control-Allow-Origin', 'https://www.bennykraeckmans.be');
-    $response = $response->withHeader('Access-Control-Allow-Origin', '*');
+    $response = $response->withHeader('Access-Control-Allow-Origin', '*'); // TEMPORARY
     $response = $response->withHeader('Access-Control-Allow-Methods', implode(',', $methods));
     $response = $response->withHeader('Access-Control-Allow-Headers', $requestHeaders);
 
     return $response;
 });
 
-// The RoutingMiddleware should be added after our CORS middleware so routing is performed first
+// The RoutingMiddleware should be added after our CORS middleware so routing is performed first -- WHAT?!
 $app->addRoutingMiddleware();
 
 /**
@@ -61,8 +59,10 @@ $app->addRoutingMiddleware();
 
 // Get all projects
 $app->get('/v1/projects', function (Request $request, Response $response) use ($mysqli) {
-    $sql = "SELECT * FROM projects";
-    $result = $mysqli->query($sql);
+    $query = "SELECT *
+                FROM projects
+               ORDER BY ID";
+    $result = $mysqli->query($query);
 
     $projects = [];
 
@@ -79,7 +79,10 @@ $app->get('/v1/projects', function (Request $request, Response $response) use ($
 $app->get('/v1/projects/{id}', function (Request $request, Response $response, $args) use ($mysqli) {
     $id = $args['id'];
 
-    $stmt = $mysqli->prepare("SELECT * FROM projects WHERE id = ?");
+    $query = "SELECT *
+                FROM projects
+               WHERE id = ?";
+    $stmt = $mysqli->prepare($query);
     $stmt->bind_param("i", $id);
 
     $stmt->execute();
@@ -94,7 +97,7 @@ $app->get('/v1/projects/{id}', function (Request $request, Response $response, $
     }
 });
 
-// Adding a new project
+// Adding a new project (1)
 $app->post('/v1/projects', function (Request $request, Response $response) use ($mysqli) {
     $data = $request->getParsedBody();
 
@@ -102,7 +105,11 @@ $app->post('/v1/projects', function (Request $request, Response $response) use (
     $code = $data['code'];
     $description = $data['description'];
 
-    $stmt = $mysqli->prepare("INSERT INTO projects (name, code, description) VALUES (?, ?, ?)");
+    $query = "INSERT INTO projects (name,
+                                    code,
+                                    description)
+              VALUES (?, ?, ?)";
+    $stmt = $mysqli->prepare($query);
     $stmt->bind_param("sss", $name, $code, $description);
 
     if ($stmt->execute()) {
@@ -112,7 +119,8 @@ $app->post('/v1/projects', function (Request $request, Response $response) use (
     }
 });
 
-$app->options('/v1/projects', function (Request $request, Response $response): Response { // Allow preflight requests for /v1/projects
+// Adding a new project (2) Allow preflight requests for /v1/projects
+$app->options('/v1/projects', function (Request $request, Response $response): Response {
     return $response;
 });
 
@@ -125,7 +133,12 @@ $app->put('/v1/projects/{id}', function (Request $request, Response $response, $
     $code = $data['code'];
     $description = $data['description'];
 
-    $stmt = $mysqli->prepare("UPDATE projects SET name = ?, code = ?, description = ? WHERE id = ?");
+    $query = "UPDATE projects
+                 SET name = ?,
+                     code = ?,
+                     description = ?
+               WHERE id = ?";
+    $stmt = $mysqli->prepare($query);
     $stmt->bind_param("sssi", $name, $code, $description, $id);
 
     if ($stmt->execute()) {
@@ -139,7 +152,9 @@ $app->put('/v1/projects/{id}', function (Request $request, Response $response, $
 $app->delete('/v1/projects/{id}', function (Request $request, Response $response, $args) use ($mysqli) {
     $id = $args['id'];
 
-    $stmt = $mysqli->prepare("DELETE FROM projects WHERE id = ?");
+    $query = "DELETE FROM projects
+              WHERE id = ?";
+    $stmt = $mysqli->prepare($query);
     $stmt->bind_param("i", $id);
 
     if ($stmt->execute()) {
@@ -151,8 +166,10 @@ $app->delete('/v1/projects/{id}', function (Request $request, Response $response
 
 // Get all employees
 $app->get('/v1/employees', function (Request $request, Response $response) use ($mysqli) {
-    $sql = "SELECT * FROM employees";
-    $result = $mysqli->query($sql);
+    $query = "SELECT *
+                FROM employees
+               ORDER BY ID";
+    $result = $mysqli->query($query);
 
     $employees = [];
 
@@ -168,7 +185,10 @@ $app->get('/v1/employees', function (Request $request, Response $response) use (
 // Get a single employee
 $app->get('/v1/employees/{id}', function (Request $request, Response $response, $args) use ($mysqli) {
     $id = $args['id'];
-    $stmt = $mysqli->prepare("SELECT * FROM employees WHERE id = ?");
+    $query = "SELECT *
+                FROM employees
+               WHERE id = ? ";
+    $stmt = $mysqli->prepare($query);
     $stmt->bind_param("i", $id);
     $stmt->execute();
 
@@ -190,7 +210,11 @@ $app->post('/v1/employees', function (Request $request, Response $response) use 
     $lastName = $data['last_name'];
     $specialization = $data['specialization'];
 
-    $stmt = $mysqli->prepare("INSERT INTO employees (first_name, last_name, specialization) VALUES (?, ?, ?)");
+    $query = "INSERT INTO employees (first_name,
+                                     last_name,
+                                     specialization)
+              VALUES (?, ?, ?)";
+    $stmt = $mysqli->prepare($query);
     $stmt->bind_param("sss", $firstName, $lastName, $specialization);
 
     if ($stmt->execute()) {
@@ -209,7 +233,11 @@ $app->put('/v1/employees/{id}', function (Request $request, Response $response, 
     $lastName = $data['last_name'];
     $specialization = $data['specialization'];
 
-    $stmt = $mysqli->prepare("UPDATE employees SET first_name = ?, last_name = ?, specialization = ? WHERE id = ?");
+    $query = "UPDATE employees SET first_name = ?,
+                                   last_name = ?,
+                                   specialization = ?
+              WHERE id = ?";
+    $stmt = $mysqli->prepare($query);
     $stmt->bind_param("sssi", $firstName, $lastName, $specialization, $id);
 
     if ($stmt->execute()) {
@@ -223,7 +251,9 @@ $app->put('/v1/employees/{id}', function (Request $request, Response $response, 
 $app->delete('/v1/employees/{id}', function (Request $request, Response $response, $args) use ($mysqli) {
     $id = $args['id'];
 
-    $stmt = $mysqli->prepare("DELETE FROM employees WHERE id = ?");
+    $query = "DELETE FROM employees
+              WHERE id = ?";
+    $stmt = $mysqli->prepare($query);
     $stmt->bind_param("i", $id);
 
     if ($stmt->execute()) {
