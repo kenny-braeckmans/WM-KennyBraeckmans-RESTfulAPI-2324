@@ -7,9 +7,15 @@
 
 ## Roadmap/Issues
 
+### Backend
+- [x] Configure MySQL database/tables
 - [x] Implement SLIM framework for API
-- [x] Implement Bootstrap for webapp
 - [ ] Implement [tuupola/cors-middleware: PSR-7 and PSR-15 CORS middleware](https://github.com/tuupola/cors-middleware)
+- [ ] Add endpoints for adding and removing projectmembers
+
+### Frontend
+- [x] Implement Bootstrap for webapp
+- [ ] Add forms for adding and editing projects and employees
 
 ## 📚 References
 
@@ -33,6 +39,13 @@
 ### Bootstrap
 
 - [Tables · Bootstrap v5.3](https://getbootstrap.com/docs/5.3/content/tables/)
+
+## Development
+
+Configure or restore tables in MySQL database
+```
+mysql> source ./tmp/setup.sql
+```
 
 ## 🧪 API Testing
 
