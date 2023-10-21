@@ -4,11 +4,14 @@
  * API for the project management app
  */
 
-// Enable error reporting - REMOVE ME
+/**
+ * Initialization
+ */
+
+// Enable error reporting - REMOVE/DISABLE IN PROD
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Include required files
 // Load Composer's autoloader for required libraries
 require __DIR__ . '/vendor/autoload.php';
 
@@ -19,38 +22,30 @@ require __DIR__ . '/inc/helpers.php';
 // Import necessary classes using the Composer autoloader
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
-use Psr\Http\Server\RequestHandlerInterface;
 use Slim\Factory\AppFactory;
-use Slim\Routing\RouteContext;
 
-// Create a new Slim app
+// Create a new Slim app instance
 $app = AppFactory::create();
 
 /**
- * Middleware
+ * Middleware configuration
  */
 
- // This middleware will parse the JSON request body and add the parsed body to the request object
+// Middleware to handle JSON request body parsing.
+// This ensures the request's JSON body is parsed and made available as request attributes.
 $app->addBodyParsingMiddleware();
 
-// This middleware will add CORS headers to the response
-$app->add(function (Request $request, RequestHandlerInterface $handler): Response {
-    $routeContext = RouteContext::fromRequest($request);
-    $routingResults = $routeContext->getRoutingResults();
-    $methods = $routingResults->getAllowedMethods();
-    $requestHeaders = $request->getHeaderLine('Access-Control-Request-Headers');
+// Middleware for CORS support.
+$app->add(new Tuupola\Middleware\CorsMiddleware([
+    "origin" => ["https://www.bennykraeckmans.be"],
+    "methods" => ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    "headers.allow" => [],
+    "headers.expose" => [],
+    "credentials" => false,
+    "cache" => 0,
+]));
 
-    $response = $handler->handle($request);
-
-    // $response = $response->withHeader('Access-Control-Allow-Origin', 'https://www.bennykraeckmans.be');
-    $response = $response->withHeader('Access-Control-Allow-Origin', '*'); // TEMPORARY
-    $response = $response->withHeader('Access-Control-Allow-Methods', implode(',', $methods));
-    $response = $response->withHeader('Access-Control-Allow-Headers', $requestHeaders);
-
-    return $response;
-});
-
-// The RoutingMiddleware should be added after our CORS middleware so routing is performed first -- WHAT?!
+// Middleware to determine which route handles the request.
 $app->addRoutingMiddleware();
 
 /**
@@ -113,15 +108,10 @@ $app->post('/v1/projects', function (Request $request, Response $response) use (
     $stmt->bind_param("sss", $name, $code, $description);
 
     if ($stmt->execute()) {
-        return jsonResponse($response, ['message' => 'Project added successfully'], 201);
+        return jsonResponse($response, ['message' => 'Project added successfully'], 200);
     } else {
         return jsonResponse($response, ['error' => 'Failed to add project'], 500);
     }
-});
-
-// Adding a new project (2) Allow preflight requests for /v1/projects
-$app->options('/v1/projects', function (Request $request, Response $response): Response {
-    return $response;
 });
 
 // Updating a project
@@ -142,7 +132,7 @@ $app->put('/v1/projects/{id}', function (Request $request, Response $response, $
     $stmt->bind_param("sssi", $name, $code, $description, $id);
 
     if ($stmt->execute()) {
-        return jsonResponse($response, ['message' => 'Project updated successfully'], 201);
+        return jsonResponse($response, ['message' => 'Project updated successfully'], 200);
     } else {
         return jsonResponse($response, ['error' => 'Failed to update project'], 500);
     }
@@ -153,15 +143,28 @@ $app->delete('/v1/projects/{id}', function (Request $request, Response $response
     $id = $args['id'];
 
     $query = "DELETE FROM projects
-              WHERE id = ?";
+               WHERE id = ?";
     $stmt = $mysqli->prepare($query);
+
+    // Check for errors in preparing the query
+    if (!$stmt) {
+        return jsonResponse($response, ['error' => 'Database prepare error: ' . $mysqli->error], 500);
+    }
+
     $stmt->bind_param("i", $id);
 
     if ($stmt->execute()) {
-        return jsonResponse($response, ['message' => 'Project deleted successfully'], 201);
+        $stmt->close();
+        return jsonResponse($response, ['message' => 'Project deleted successfully'], 200); // FIX ME, find better http response code (but not 204...)
     } else {
-        return jsonResponse($response, ['error' => 'Failed to delete project'], 500);
+        $errorMsg = $stmt->error; // Capture the specific error
+        $stmt->close();
+        return jsonResponse($response, ['error' => 'Failed to delete project: ' . $errorMsg], 500);
     }
+});
+
+$app->options('/v1/projects/{id}', function (Request $request, Response $response, $args) use ($mysqli) {
+    return $response;
 });
 
 // Get all employees
@@ -218,7 +221,7 @@ $app->post('/v1/employees', function (Request $request, Response $response) use 
     $stmt->bind_param("sss", $firstName, $lastName, $specialization);
 
     if ($stmt->execute()) {
-        return jsonResponse($response, ['message' => 'Employee added successfully'], 201);
+        return jsonResponse($response, ['message' => 'Employee added successfully'], 200);
     } else {
         return jsonResponse($response, ['error' => 'Failed to add employee'], 500);
     }
@@ -241,7 +244,7 @@ $app->put('/v1/employees/{id}', function (Request $request, Response $response, 
     $stmt->bind_param("sssi", $firstName, $lastName, $specialization, $id);
 
     if ($stmt->execute()) {
-        return jsonResponse($response, ['message' => 'Employee updated successfully'], 201);
+        return jsonResponse($response, ['message' => 'Employee updated successfully'], 200);
     } else {
         return jsonResponse($response, ['error' => 'Failed to update employee'], 500);
     }
@@ -252,12 +255,12 @@ $app->delete('/v1/employees/{id}', function (Request $request, Response $respons
     $id = $args['id'];
 
     $query = "DELETE FROM employees
-              WHERE id = ?";
+               WHERE id = ?";
     $stmt = $mysqli->prepare($query);
     $stmt->bind_param("i", $id);
 
     if ($stmt->execute()) {
-        return jsonResponse($response, ['message' => 'Employee deleted successfully'], 201);
+        return jsonResponse($response, ['message' => 'Employee deleted successfully'], 200); // FIX ME, find better http response code (but not 204...)
     } else {
         return jsonResponse($response, ['error' => 'Failed to delete employee'], 500);
     }
