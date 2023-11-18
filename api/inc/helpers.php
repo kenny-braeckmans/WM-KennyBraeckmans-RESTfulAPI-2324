@@ -5,7 +5,7 @@ function jsonResponse($response, $data, $status = 200) {
         ->getBody()
         ->write(json_encode(
             $data,
-            JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT
+            JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES| JSON_PRETTY_PRINT
         ));
     return $response
         ->withHeader('Content-Type', 'application/json')

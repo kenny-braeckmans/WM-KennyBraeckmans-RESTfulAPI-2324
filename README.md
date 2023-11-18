@@ -10,7 +10,8 @@
 ### Backend
 - [x] Configure MySQL database/tables
 - [x] Implement SLIM framework for API
-- [ ] Implement [tuupola/cors-middleware: PSR-7 and PSR-15 CORS middleware](https://github.com/tuupola/cors-middleware)
+- [x] Implement [tuupola/cors-middleware: PSR-7 and PSR-15 CORS middleware](https://github.com/tuupola/cors-middleware)
+- [ ] Implement [ErrorMiddleware](https://www.slimframework.com/docs/v4/middleware/error-handling.html)
 - [ ] Add endpoints for adding and removing projectmembers
 
 ### Frontend
@@ -29,6 +30,7 @@
 - [Installation - Slim Framework](https://www.slimframework.com/docs/v4/start/installation.html)
 - [Apache & mod_rewrite - Slim Framework](https://www.slimframework.com/docs/v4/start/web-servers.html#apache-configuration)
 - [Routing - Slim Framework](https://www.slimframework.com/docs/v4/objects/routing.html#how-to-create-routes)
+- [Body Parsing Middleware - Slim Framework](https://www.slimframework.com/docs/v4/middleware/body-parsing.html)
 - [Setting up CORS - Slim Framework](https://www.slimframework.com/docs/v4/cookbook/enable-cors.html)
 - [How to Create a RESTful API With Slim 4, PHP and MySQL](https://www.twilio.com/blog/create-restful-api-slim4-php-mysql)
 
